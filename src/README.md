@@ -16,7 +16,6 @@ existing OpenStack cloud (which includes ceilometer):
     juju add-relation gnocchi mysql
     juju add-relation gnocchi memcached
     juju add-relation gnocchi keystone
-    juju add-relation gnocchi ceph-mon
     juju add-relation gnocchi ceilometer
 
 After re-configuration the Ceilometer API will be disabled - the Gnocchi REST

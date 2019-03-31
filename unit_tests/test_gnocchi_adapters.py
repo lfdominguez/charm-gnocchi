@@ -29,12 +29,3 @@ class TestAdapters(test_utils.PatchHelper):
         '1.2.3.5:123',
         '1.2.3.6:123',
     ]
-
-    def test_storage_ceph(self):
-        adapter = gnocchi.StorageCephRelationAdapter()
-        adapter.relation = mock.MagicMock()
-        adapter.relation.mon_hosts.return_value = self._mons
-        self.assertEqual(adapter.monitors,
-                         ','.join(self._mons))
-        adapter.relation.mon_hosts.return_value = []
-        self.assertEqual(adapter.monitors, None)

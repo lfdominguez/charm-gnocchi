@@ -1,6 +1,6 @@
 name: gnocchi
-maintainer: OpenStack Charmers <openstack-dev@lists.openstack.org>
-summary: Multi-tenant timeseries, metrics and resources database
+maintainer: Luis Felipe Domínguez Vega <ldominguezvega@gmail.com>
+summary: Multi-tenant timeseries, metrics and resources database with file as backend
 description: |
   Gnocchi is an open-source, multi-tenant timeseries, metrics
   and resources database. It provides an HTTP REST interface
@@ -8,7 +8,7 @@ description: |
   metrics at a very large scale while providing access to
   metrics and resources information and history.
 tags:
-  - openstack
+  - openstack, local-storage
 series:
   - xenial
   - bionic
@@ -17,7 +17,5 @@ provides:
   metric-service:
     interface: gnocchi
 requires:
-  storage-ceph:
-    interface: ceph-client
   coordinator-memcached:
     interface: memcache

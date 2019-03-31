@@ -19,7 +19,6 @@ import charms.reactive as reactive
 
 import charm.openstack.gnocchi as gnocchi  # noqa
 
-import charmhelpers.contrib.storage.linux.ceph as ceph_helper
 import charmhelpers.core.hookenv as hookenv
 import charmhelpers.core.host as host
 
@@ -33,8 +32,7 @@ charm.use_defaults(
 
 required_interfaces = ['coordinator-memcached.available',
                        'shared-db.available',
-                       'identity-service.available',
-                       'storage-ceph.pools.available']
+                       'identity-service.available']
 
 
 @reactive.when_not_all(*required_interfaces)
@@ -76,31 +74,6 @@ def cluster_connected(hacluster):
     with charm.provide_charm_instance() as charm_class:
         charm_class.configure_ha_resources(hacluster)
         charm_class.assess_status()
-
-
-@reactive.when('storage-ceph.connected')
-def storage_ceph_connected(ceph):
-    ceph.create_pool(hookenv.service_name())
-
-
-@reactive.when('storage-ceph.available')
-def configure_ceph(ceph):
-    with charm.provide_charm_instance() as charm_class:
-        # TODO(jamespage): refactor to avoid massaging helper
-        ceph_helper.KEYRING = charm_class.ceph_keyring
-        host.mkdir(os.path.dirname(charm_class.ceph_keyring))
-        ceph_helper.ensure_ceph_keyring(service=hookenv.service_name(),
-                                        key=ceph.key(),
-                                        user=charm_class.gnocchi_user,
-                                        group=charm_class.gnocchi_group)
-
-
-@reactive.when_not('storage-ceph.connected')
-def storage_ceph_disconnected():
-    with charm.provide_charm_instance() as charm_class:
-        # TODO(jamespage): refactor to avoid massaging helper
-        ceph_helper.KEYRING = charm_class.ceph_keyring
-        ceph_helper.delete_keyring(hookenv.service_name())
 
 
 @reactive.when('metric-service.connected')

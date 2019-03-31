@@ -46,12 +46,6 @@ GNOCCHI_NGINX_SITE_CONF_SNAP = '{}{}'.format(
 GNOCCHI_NGINX_CONF_SNAP = '{}{}'.format(SNAP_PREFIX,
                                         '/etc/nginx/nginx.conf')
 
-CEPH_CONF = '/etc/ceph/ceph.conf'
-CEPH_CONF_SNAP = '{}{}'.format(SNAP_PREFIX, CEPH_CONF)
-
-CEPH_KEYRING = '/etc/ceph/ceph.client.{}.keyring'
-CEPH_KEYRING_SNAP = '{}{}'.format(SNAP_PREFIX, CEPH_KEYRING)
-
 DB_INTERFACE = 'shared-db'
 
 charms_openstack.charm.use_defaults('charm.default-select-package-type')
@@ -67,36 +61,6 @@ def log_config(config):
         return '/var/log/gnocchi/gnocchi-api.log'
 
 
-@charms_openstack.adapters.config_property
-def ceph_config(config):
-    if ch_utils.snap_install_requested():
-        return CEPH_CONF_SNAP
-    else:
-        return CEPH_CONF
-
-
-# TODO(jamespage): charms.openstack
-class StorageCephRelationAdapter(adapters.OpenStackRelationAdapter):
-
-    """
-    Adapter for the CephClientRequires relation interface.
-    """
-
-    interface_type = "ceph-client"
-
-    @property
-    def monitors(self):
-        """
-        Comma separated list of hosts that should be used
-        to access Ceph.
-        """
-        hosts = sorted(self.relation.mon_hosts())
-        if len(hosts) > 0:
-            return ','.join(hosts)
-        else:
-            return None
-
-
 class GnocchiCharmRelationAdapaters(adapters.OpenStackAPIRelationAdapters):
 
     """
@@ -104,7 +68,6 @@ class GnocchiCharmRelationAdapaters(adapters.OpenStackAPIRelationAdapters):
     """
 
     relation_adapters = {
-        'storage_ceph': StorageCephRelationAdapter,
         'shared_db': adapters.DatabaseRelationAdapter,
         'cluster': adapters.PeerHARelationAdapter,
         'coordinator_memcached': adapters.MemcacheRelationAdapter,
@@ -133,8 +96,7 @@ class GnochiCharmBase(charms_openstack.charm.HAOpenStackCharm):
         }
     }
 
-    required_relations = ['shared-db', 'identity-service',
-                          'storage-ceph', 'coordinator-memcached']
+    required_relations = ['shared-db', 'identity-service', 'coordinator-memcached']
 
     ha_resources = ['vips', 'haproxy', 'dnsha']
 
@@ -176,21 +138,6 @@ class GnochiCharmBase(charms_openstack.charm.HAOpenStackCharm):
         '''
         return self.group
 
-    @property
-    def ceph_keyring(self):
-        '''Determine location for ceph keyring file
-
-        :return string: location of keyrings
-        '''
-        _type_map = {
-            'snap': CEPH_KEYRING_SNAP,
-            'deb': CEPH_KEYRING,
-        }
-        try:
-            return _type_map[self.package_type]
-        except KeyError:
-            return CEPH_KEYRING
-
 
 class GnocchiCharm(GnochiCharmBase):
 
@@ -205,8 +152,7 @@ class GnocchiCharm(GnochiCharmBase):
     package_type = 'deb'
 
     # List of packages to install for this charm
-    packages = ['gnocchi-api', 'gnocchi-metricd', 'python-apt',
-                'ceph-common', 'python-rados', 'python-keystonemiddleware',
+    packages = ['gnocchi-api', 'gnocchi-metricd', 'python-apt', 'python-rados', 'python-keystonemiddleware',
                 'apache2', 'libapache2-mod-wsgi']
 
     services = ['gnocchi-metricd', 'apache2']
@@ -215,7 +161,6 @@ class GnocchiCharm(GnochiCharmBase):
         GNOCCHI_CONF: services,
         GNOCCHI_WSGI_CONF: ['apache2'],
         GNOCCHI_API_PASTE: ['apache2'],
-        CEPH_CONF: services,
     }
 
     release_pkg = 'gnocchi-common'
@@ -262,8 +207,7 @@ class GnocchiQueensCharm(GnocchiCharm):
 
     release = 'queens'
 
-    packages = ['gnocchi-api', 'gnocchi-metricd', 'python3-apt',
-                'ceph-common', 'python3-rados', 'python3-keystonemiddleware',
+    packages = ['gnocchi-api', 'gnocchi-metricd', 'python3-apt', 'python3-rados', 'python3-keystonemiddleware',
                 'python3-memcache']
 
 
@@ -282,7 +226,7 @@ class GnocchiSnapCharm(GnochiCharmBase):
 
     # List of packages and snaps to install for this charm
     snaps = ['gnocchi']
-    packages = ['ceph-common']
+    packages = []
 
     services = ['snap.gnocchi.metricd',
                 'snap.gnocchi.nginx',
@@ -301,7 +245,6 @@ class GnocchiSnapCharm(GnochiCharmBase):
         GNOCCHI_CONF_SNAP: ['snap.gnocchi.metricd', 'snap.gnocchi.uwsgi'],
         GNOCCHI_NGINX_SITE_CONF_SNAP: ['snap.gnocchi.nginx'],
         GNOCCHI_NGINX_CONF_SNAP: ['snap.gnocchi.nginx'],
-        CEPH_CONF_SNAP: ['snap.gnocchi.metricd', 'snap.gnocchi.uwsgi'],
     }
 
     sync_cmd = [

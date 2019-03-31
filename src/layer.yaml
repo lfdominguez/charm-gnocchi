@@ -1,4 +1,4 @@
-includes: ['layer:openstack-api', 'interface:ceph-client', 'interface:gnocchi', 'interface:memcache']
+includes: ['layer:openstack-api', 'interface:gnocchi', 'interface:memcache']
 repo: 'https://github.com/openstack/charm-gnocchi'
 options:
   basic:

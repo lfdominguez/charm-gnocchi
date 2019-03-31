@@ -30,4 +30,3 @@ distro-info
 git+https://github.com/juju/charm-helpers.git#egg=charmhelpers
 # END: Amulet OpenStack Charm Helper Requirements
 pytz    # workaround for 14.04 pip/tox
-pyudev  # for ceph-* charm unit tests (not mocked?)

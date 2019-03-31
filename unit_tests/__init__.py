@@ -34,9 +34,6 @@ def mock_more_stuff():
     sys.modules['charmhelpers.contrib.storage.linux'] = (
         charmhelpers.contrib.storage.linux
     )
-    sys.modules['charmhelpers.contrib.storage.linux.ceph'] = (
-        charmhelpers.contrib.storage.linux.ceph
-    )
 
 
 mock_more_stuff()

@@ -33,8 +33,7 @@ class GnocchiCharmDeployment(amulet_deployment.OpenStackAmuletDeployment):
 
     gnocchi_svcs = ['haproxy', 'gnocchi-metricd', 'apache2']
     gnocchi_proc_names = gnocchi_svcs
-    no_origin = ['memcached', 'percona-cluster', 'rabbitmq-server',
-                 'ceph-mon', 'ceph-osd']
+    no_origin = ['memcached', 'percona-cluster', 'rabbitmq-server']
 
     def __init__(self, series, openstack=None, source=None, stable=False,
                  snap_source=None):
@@ -70,10 +69,7 @@ class GnocchiCharmDeployment(amulet_deployment.OpenStackAmuletDeployment):
             {'name': 'ceilometer'},
             {'name': 'keystone'},
             {'name': 'rabbitmq-server'},
-            {'name': 'memcached', 'location': 'cs:memcached'},
-            {'name': 'ceph-mon', 'units': 3},
-            {'name': 'ceph-osd', 'units': 3,
-             'storage': {'osd-devices': 'cinder,10G'}},
+            {'name': 'memcached', 'location': 'cs:memcached'},,
         ]
 
         if self._get_openstack_release() < self.xenial_queens:
@@ -91,11 +87,9 @@ class GnocchiCharmDeployment(amulet_deployment.OpenStackAmuletDeployment):
             'keystone:shared-db': 'percona-cluster:shared-db',
             'gnocchi:identity-service': 'keystone:identity-service',
             'gnocchi:shared-db': 'percona-cluster:shared-db',
-            'gnocchi:storage-ceph': 'ceph-mon:client',
             'gnocchi:metric-service': 'ceilometer:metric-service',
             'gnocchi:coordinator-memcached': 'memcached:cache',
             'ceilometer:amqp': 'rabbitmq-server:amqp',
-            'ceph-mon:osd': 'ceph-osd:mon',
         }
         if self._get_openstack_release() >= self.xenial_queens:
             relations['ceilometer:identity-credentials'] = \
